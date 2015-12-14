@@ -16,8 +16,12 @@ import static org.assertj.swing.launcher.ApplicationLauncher.application;
 
 public class GUITest extends AssertJSwingJUnitTestCase {
 
+    private AWTExceptionHandler awtExceptionHandler;
+
     @Override
     protected void onSetUp() {
+        awtExceptionHandler = new AWTExceptionHandler();
+        awtExceptionHandler.installExceptionDetectionInEDT();
         application(JabRefMain.class).start();
     }
 
@@ -29,6 +33,7 @@ public class GUITest extends AssertJSwingJUnitTestCase {
 
     private void exitJabRef(FrameFixture mainFrame) {
         mainFrame.menuItemWithPath("File", "Quit").click();
+        awtExceptionHandler.assertNoExceptions();
     }
 
     @Test
@@ -51,6 +56,7 @@ public class GUITest extends AssertJSwingJUnitTestCase {
 
         mainFrame.menuItemWithPath("BibTeX", "New entry").click();
         findDialog(EntryTypeDialog.class).using(robot()).button(new GenericTypeMatcher<JButton>(JButton.class) {
+
             @Override protected boolean isMatching(@Nonnull JButton jButton) {
                 return "Book".equals(jButton.getText());
             }
@@ -65,10 +71,29 @@ public class GUITest extends AssertJSwingJUnitTestCase {
 
         mainFrame.menuItemWithPath("Options", "Preferences").click();
         findDialog(PreferencesDialog.class).using(robot()).button(new GenericTypeMatcher<JButton>(JButton.class) {
+
             @Override protected boolean isMatching(@Nonnull JButton jButton) {
                 return "OK".equals(jButton.getText());
             }
         }).click();
+
+        exitJabRef(mainFrame);
+    }
+
+    @Test
+    public void testViewChanges() {
+        FrameFixture mainFrame = findFrame(JabRefFrame.class).using(robot());
+
+        newDatabase(mainFrame);
+
+        mainFrame.menuItemWithPath("View", "Increase table font size").click();
+        mainFrame.menuItemWithPath("View", "Decrease table font size").click();
+        mainFrame.menuItemWithPath("View", "Web search").click();
+        mainFrame.menuItemWithPath("View", "Toggle groups interface").click();
+        mainFrame.menuItemWithPath("View", "Toggle entry preview").click();
+        mainFrame.menuItemWithPath("View", "Switch preview layout").click();
+        mainFrame.menuItemWithPath("View", "Hide/show toolbar").click();
+        mainFrame.menuItemWithPath("View", "Focus entry table").click();
 
         exitJabRef(mainFrame);
     }
