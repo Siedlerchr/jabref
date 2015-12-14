@@ -1,5 +1,6 @@
 package net.sf.jabref.gui;
 
+import junit.framework.AssertionFailedError;
 import org.junit.Assert;
 
 import javax.swing.*;
@@ -19,10 +20,7 @@ public class AWTExceptionHandler {
 
     public void assertNoExceptions() {
         if(!list.isEmpty()) {
-            for(Throwable e : list) {
-                e.printStackTrace();
-            }
-            Assert.fail(list.size() + " exception(s) occurred in EDT. Their stacktraces are printed to the console.");
+            throw new AssertionError("Uncaught exception in EDT", list.get(0));
         }
     }
 
