@@ -23,7 +23,7 @@ to [sourceforge feature requests](https://sourceforge.net/p/jabref/features/) by
 - Fixed #608: Export works again
 
 ### Removed
-
+- OpenOffice/LibreOffice is removed from the push-to-application button and only accessed through the side panel
 
 
 
