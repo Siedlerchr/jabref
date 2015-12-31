@@ -21,6 +21,11 @@ to [sourceforge feature requests](https://sourceforge.net/p/jabref/features/) by
 - ACM fetcher works again, fixes #545
 - Use default file icon for custom external file types, fixes #598
 - Fixed #608: Export works again
+- Fixed #534: No OpenOffice setup panel in preferences
+- Fixed #545: ACM fetcher works again
+- Fixed #593: Reference list generation works for OpenOffice/LibreOffice again
+- Fixed #598: Use default file icon for custom external file types
+- Fixed #607: OpenOffice/LibreOffice works on OSX again
 
 ### Removed
 - OpenOffice/LibreOffice is removed from the push-to-application button and only accessed through the side panel
