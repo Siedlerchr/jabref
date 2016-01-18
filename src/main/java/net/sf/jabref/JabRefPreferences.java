@@ -33,8 +33,6 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import javax.swing.*;
-
 import net.sf.jabref.gui.*;
 import net.sf.jabref.gui.actions.CleanUpAction;
 import net.sf.jabref.gui.entryeditor.EntryEditorTabList;
@@ -59,6 +57,8 @@ import net.sf.jabref.importer.CustomImportList;
 import net.sf.jabref.logic.remote.RemotePreferences;
 import net.sf.jabref.specialfields.SpecialFieldsUtils;
 import net.sf.jabref.logic.util.strings.StringUtil;
+
+import javax.swing.*;
 
 public final class JabRefPreferences {
     private static final Log LOGGER = LogFactory.getLog(JabRefPreferences.class);
@@ -427,9 +427,6 @@ public final class JabRefPreferences {
         defaults.put(TEXSTUDIO_PATH, OS.guessProgramPath("texstudio", "TeXstudio"));
 
         if (OS.OS_X) {
-            //defaults.put(JabRefPreferences.PDFVIEWER, "/Applications/Preview.app");
-            //defaults.put(JabRefPreferences.PSVIEWER, "/Applications/Preview.app");
-            //defaults.put("htmlviewer", "/Applications/Safari.app");
             defaults.put(EMACS_PATH, "emacsclient");
             defaults.put(EMACS_23, true);
             defaults.put(EMACS_ADDITIONAL_PARAMETERS, "-n -e");
@@ -437,9 +434,6 @@ public final class JabRefPreferences {
             defaults.put(WIN_LOOK_AND_FEEL, UIManager.getSystemLookAndFeelClassName());
 
         } else if (OS.WINDOWS) {
-            //defaults.put(JabRefPreferences.PDFVIEWER, "cmd.exe /c start /b");
-            //defaults.put(JabRefPreferences.PSVIEWER, "cmd.exe /c start /b");
-            //defaults.put("htmlviewer", "cmd.exe /c start /b");
             defaults.put(WIN_LOOK_AND_FEEL, "com.jgoodies.looks.windows.WindowsLookAndFeel");
             defaults.put(EMACS_PATH, "emacsclient.exe");
             defaults.put(EMACS_23, true);
@@ -447,9 +441,6 @@ public final class JabRefPreferences {
             defaults.put(FONT_FAMILY, "Arial");
 
         } else {
-            //defaults.put(JabRefPreferences.PDFVIEWER, "evince");
-            //defaults.put(JabRefPreferences.PSVIEWER, "gv");
-            //defaults.put("htmlviewer", "firefox");
             defaults.put(WIN_LOOK_AND_FEEL, "com.jgoodies.plaf.plastic.Plastic3DLookAndFeel");
             defaults.put(FONT_FAMILY, "SansSerif");
 
@@ -476,7 +467,7 @@ public final class JabRefPreferences {
         defaults.put(SIZE_X, 840);
         defaults.put(SIZE_Y, 680);
         defaults.put(WINDOW_MAXIMISED, Boolean.FALSE);
-        defaults.put(AUTO_RESIZE_MODE, JTable.AUTO_RESIZE_ALL_COLUMNS);
+        defaults.put(AUTO_RESIZE_MODE, 4); // JTable.AUTO_RESIZE_ALL_COLUMNS
         defaults.put(PREVIEW_PANEL_HEIGHT, 200);
         defaults.put(ENTRY_EDITOR_HEIGHT, 400);
         defaults.put(TABLE_COLOR_CODES_ON, Boolean.FALSE);
