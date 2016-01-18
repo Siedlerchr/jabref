@@ -31,7 +31,7 @@ public class LastFocusedTabPreferences {
     }
 
     public void setLastFocusedTab(File file) {
-        String filePath = null;
+        String filePath = "";
         if (file != null) {
             filePath = file.getAbsolutePath();
         }
