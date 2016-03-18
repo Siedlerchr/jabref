@@ -34,11 +34,13 @@ to [sourceforge feature requests](https://sourceforge.net/p/jabref/features/) by
 - [#454](https://github.com/JabRef/jabref/issues/454) Add a tab that shows all remaining entry fields that are not displayed in any other tab
 - The LaTeX to Unicode/HTML functionality is much improved by covering many more cases
 - Ability to convert from LaTeX to Unicode in right-click field menu
-
 - [#492](https://github.com/JabRef/jabref/issues/492): If no text is marked, the whole field is copied. Preview of pasted text in tool tip
 - Integrity check now also checks broken file links, abbreviations in journal and booktitle, and incorrect use of proceedings with page numbers
 - PdfContentImporter does not write the content of the first page into the review field any more
 - Implemented [#462](https://github.com/JabRef/jabref/issues/462): Add new action to open console where opened database file is located. New button, menu entry and shortcut (CTRL+SHIFT+J) for this action have also been added.
+- [#957](https://github.com/JabRef/jabref/issues/957) Improved usability of Export save order selection in Preferences and Database Properties
+- [#958](https://github.com/JabRef/jabref/issues/958) Adjusted size and changed layout of database dialog
+
 
 ### Fixed
 - Fixed [#598](https://github.com/JabRef/jabref/issues/598) and [#402](https://github.com/JabRef/jabref/issues/402): No more issues with invalid icons for ExternalFileTypes in global search or after editing the settings
