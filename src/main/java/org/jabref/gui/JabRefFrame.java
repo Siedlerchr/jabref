@@ -71,6 +71,7 @@ import org.jabref.gui.actions.ErrorConsoleAction;
 import org.jabref.gui.actions.IntegrityCheckAction;
 import org.jabref.gui.actions.LookupIdentifierAction;
 import org.jabref.gui.actions.ManageKeywordsAction;
+import org.jabref.gui.actions.ManageShareLatexAction;
 import org.jabref.gui.actions.MassSetFieldAction;
 import org.jabref.gui.actions.MnemonicAwareAction;
 import org.jabref.gui.actions.NewDatabaseAction;
@@ -391,6 +392,8 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
             Localization.lang("Unabbreviate journal names of the selected entries"),
             Globals.getKeyPrefs().getKey(KeyBinding.UNABBREVIATE));
     private final AbstractAction manageJournals = new ManageJournalsAction();
+    private final AbstractAction manageSharelatex = new ManageShareLatexAction();
+
     private final AbstractAction databaseProperties = new DatabasePropertiesAction();
     private final AbstractAction bibtexKeyPattern = new BibtexKeyPatternAction();
     private final AbstractAction errorConsole = new ErrorConsoleAction();
@@ -1248,6 +1251,7 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
         options.add(keyBindingAction);
         options.add(protectTerms);
         options.add(manageSelectors);
+        options.add(manageSharelatex);
         mb.add(options);
 
         helpMenu.add(help);

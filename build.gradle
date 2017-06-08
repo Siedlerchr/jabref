@@ -57,9 +57,9 @@ install4j {
 repositories {
     mavenLocal()
     jcenter()
-    maven {
-        url 'https://oss.sonatype.org/content/groups/public'
-    }
+    maven { url "https://oss.sonatype.org/content/groups/public"  }
+	maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/"  }
+
 }
 
 configurations {
@@ -120,10 +120,11 @@ dependencies {
 
 
     compile 'commons-logging:commons-logging:1.2'
-
     compile 'org.apache.commons:commons-lang3:3.5'
 
-    compile 'org.jsoup:jsoup:1.10.2'
+    //compile 'org.jsoup:jsoup:1.10.2' contains a bug
+    //Until PR https://github.com/jhy/jsoup/pull/881 is merged we use a manual build under lib
+
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'info.debatty:java-string-similarity:0.23'
 
@@ -142,6 +143,12 @@ dependencies {
 
     compile group: 'com.microsoft.azure', name: 'applicationinsights-core', version: '1.0.+'
     compile group: 'com.microsoft.azure', name: 'applicationinsights-logging-log4j2', version: '1.0.+'
+
+    compile "org.glassfish.tyrus.bundles:tyrus-standalone-client:1.13.1"
+    compile "com.google.code.gson:gson:2.8.0"
+	compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.2-SNAPSHOT"
+	
+	
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.7.22'

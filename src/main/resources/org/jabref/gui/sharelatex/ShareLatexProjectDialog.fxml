@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+
+<DialogPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="240.0" prefWidth="320.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jabref.gui.sharelatex.ShareLatexProjectDialogController">>
+   <content>
+      <VBox>
+         <children>
+            <TableView fx:id="tblProjects">
+              <columns>
+                <TableColumn fx:id="colTitle" prefWidth="75.0" text="Title" />
+                <TableColumn fx:id="colOwner" prefWidth="75.0" text="Owner" />
+                  <TableColumn fx:id="colLastModified" prefWidth="112.0" text="Last Modified" />
+              </columns>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </TableView>
+         </children>
+      </VBox>
+   </content>
+   <buttonTypes>
+      <ButtonType fx:constant="CANCEL" />
+   </buttonTypes>
+</DialogPane>
