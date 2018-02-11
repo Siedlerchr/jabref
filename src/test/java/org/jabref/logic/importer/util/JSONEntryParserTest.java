@@ -4,7 +4,8 @@ import java.util.Optional;
 
 import org.jabref.model.entry.BibEntry;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,8 +24,8 @@ public class JSONEntryParserTest {
                 + "\"type\": \"fulltext\"}],\"year\":\"2014\",\"identifier\":[{"
                 + "\"type\": \"pissn\",\"id\": \"1065-514X\"},\n{\"type\": \"eissn\","
                 + "\"id\": \"1563-5171\"},{\"type\": \"doi\",\"id\": \"10.1155/2014/217495\""
-                + "}],\"created_date\":\"2014-05-09T19:38:31Z\"}\"";
-        JSONObject jsonObject = new JSONObject(jsonString);
+                + "}],\"created_date\":\"2014-05-09T19:38:31Z\"}";
+        JsonObject jsonObject = new JsonParser().parse(jsonString).getAsJsonObject();
         BibEntry bibEntry = jc.parseBibJSONtoBibtex(jsonObject, ',');
 
         Assert.assertEquals("article", bibEntry.getType());
@@ -50,7 +51,7 @@ public class JSONEntryParserTest {
                 + "            \"url\":\"http://dx.doi.org/10.1007/BF01201962\",\"copyright\":\"©1992 Rapid Communications of Oxford Ltd.\"\r\n"
                 + "        }";
 
-        JSONObject jsonObject = new JSONObject(jsonString);
+        JsonObject jsonObject = new JsonParser().parse(jsonString).getAsJsonObject();
         BibEntry bibEntry = JSONEntryParser.parseSpringerJSONtoBibtex(jsonObject);
         Assert.assertEquals(Optional.of("1992"), bibEntry.getField("year"));
         Assert.assertEquals(Optional.of("5"), bibEntry.getField("number"));

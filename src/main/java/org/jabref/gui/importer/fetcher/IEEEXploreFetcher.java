@@ -36,9 +36,11 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.FieldName;
 import org.jabref.preferences.JabRefPreferences;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +73,6 @@ public class IEEEXploreFetcher implements EntryFetcher {
     private final JournalAbbreviationLoader abbreviationLoader;
     private boolean shouldContinue;
 
-
     public IEEEXploreFetcher(JournalAbbreviationLoader abbreviationLoader) {
         super();
         this.abbreviationLoader = Objects.requireNonNull(abbreviationLoader);
@@ -96,7 +97,7 @@ public class IEEEXploreFetcher implements EntryFetcher {
         int parsed = 0;
         int pageNumber = 1;
 
-        String postData = makeSearchPostRequestPayload(pageNumber, terms);
+        String postData = new Gson().toJson(makeSearchPostRequestPayload(pageNumber, terms));
 
         try {
             //open the search URL
@@ -122,8 +123,8 @@ public class IEEEXploreFetcher implements EntryFetcher {
 
             //parses the JSON data returned by the query
             //TODO: a faster way would be to parse the JSON tokens one at a time just to extract the article number, but this seems to be fast enough...
-            JSONObject searchResultsJson = new JSONObject(page);
-            int hits = searchResultsJson.getInt("totalRecords");
+            JsonObject searchResultsJson = new JsonParser().parse(page).getAsJsonObject();
+            int hits = searchResultsJson.get("totalRecords").getAsInt();
 
             //if no search results were found
             if (hits == 0) {
@@ -160,9 +161,9 @@ public class IEEEXploreFetcher implements EntryFetcher {
 
             return true;
 
-        } catch (ParseException | IOException | JSONException e) {
+        } catch (IOException | ParseException e) {
             LOGGER.error("Error while fetching from " + getTitle(), e);
-            ((ImportInspectionDialog)dialog).showErrorMessage(this.getTitle(), e.getLocalizedMessage());
+            ((ImportInspectionDialog) dialog).showErrorMessage(this.getTitle(), e.getLocalizedMessage());
         }
 
         return false;
@@ -187,23 +188,26 @@ public class IEEEXploreFetcher implements EntryFetcher {
     }
 
     private String makeSearchPostRequestPayload(int startIndex, String terms) {
-        return "{\"queryText\":" + JSONObject.quote(terms) + ",\"refinements\":[],\"pageNumber\":\"" + startIndex
+        return "{\"queryText\":" + terms + ",\"refinements\":[],\"pageNumber\":\"" + startIndex
                 + "\",\"searchWithin\":[],\"newsearch\":\"true\",\"searchField\":\"Search_All\",\"rowsPerPage\":\"100\"}";
     }
 
-    private String createBibtexQueryURL(JSONObject searchResultsJson) {
+    private String createBibtexQueryURL(JsonObject searchResultsJson) {
 
         //buffer to use for building the URL for fetching the bibtex data from IEEEXplore
         StringBuilder bibtexQueryURLStringBuf = new StringBuilder();
         bibtexQueryURLStringBuf.append(URL_BIBTEX_START);
 
         //loop over each record and create a comma-separate list of article numbers which will be used to download the raw Bibtex
-        JSONArray recordsJsonArray = searchResultsJson.getJSONArray("records");
-        for (int n = 0; n < recordsJsonArray.length(); n++) {
-            if (!recordsJsonArray.getJSONObject(n).isNull("articleNumber")) {
-                bibtexQueryURLStringBuf.append(recordsJsonArray.getJSONObject(n).getString("articleNumber"))
+        JsonArray recordsJsonArray = searchResultsJson.getAsJsonArray("records");
+
+        for (JsonElement elem : recordsJsonArray) {
+
+            if (elem.getAsJsonObject() != null) {
+                bibtexQueryURLStringBuf.append(elem.getAsJsonObject().get("articleNumber").getAsString())
                         .append(',');
             }
+
         }
         //delete the last comma
         bibtexQueryURLStringBuf.deleteCharAt(bibtexQueryURLStringBuf.length() - 1);
@@ -287,8 +291,12 @@ public class IEEEXploreFetcher implements EntryFetcher {
             }
             author = String.join(" and ", authorResult);
 
-            author = author.replace(".", ". ").replace("  ", " ").replace(". -", ".-").replace("; ", " and ")
-                    .replace(" ,", ",").replace("  ", " ");
+            author = author.replace(".", ". ")
+                    .replace("  ", " ")
+                    .replace(". -", ".-")
+                    .replace("; ", " and ")
+                    .replace(" ,", ",")
+                    .replace("  ", " ");
             author = author.replaceAll("[ ,;]+$", "");
             //TODO: remove trailing commas
             entry.setField(FieldName.AUTHOR, author);
@@ -315,13 +323,24 @@ public class IEEEXploreFetcher implements EntryFetcher {
                     if (mm.group(4).isEmpty()) {
                         date.append(',');
                     } else {
-                        date = new StringBuilder().append('#').append(mm.group(4).substring(0, 3)).append('#')
-                                .append(mm.group(1)).append("--").append(mm.group(3)).append(',');
+                        date = new StringBuilder().append('#')
+                                .append(mm.group(4).substring(0, 3))
+                                .append('#')
+                                .append(mm.group(1))
+                                .append("--")
+                                .append(mm.group(3))
+                                .append(',');
                     }
                 } else {
-                    date = new StringBuilder().append('#').append(mm.group(2).substring(0, 3)).append('#')
-                            .append(mm.group(1)).append("--#").append(mm.group(4).substring(0, 3)).append('#')
-                            .append(mm.group(3)).append(',');
+                    date = new StringBuilder().append('#')
+                            .append(mm.group(2).substring(0, 3))
+                            .append('#')
+                            .append(mm.group(1))
+                            .append("--#")
+                            .append(mm.group(4).substring(0, 3))
+                            .append('#')
+                            .append(mm.group(3))
+                            .append(',');
                 }
             }
             entry.setField(FieldName.MONTH, date.toString());
@@ -372,7 +391,8 @@ public class IEEEXploreFetcher implements EntryFetcher {
                 });
             } else {
                 fullName = fullName.replace("Conference Proceedings", "Proceedings")
-                        .replace("Proceedings of", "Proceedings").replace("Proceedings.", "Proceedings");
+                        .replace("Proceedings of", "Proceedings")
+                        .replace("Proceedings.", "Proceedings");
                 fullName = fullName.replace("International", "Int.");
                 fullName = fullName.replace("Symposium", "Symp.");
                 fullName = fullName.replace("Conference", "Conf.");

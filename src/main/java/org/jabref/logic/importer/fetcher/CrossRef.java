@@ -27,10 +27,10 @@ import org.jabref.model.entry.FieldName;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.util.OptionalUtil;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.apache.http.client.utils.URIBuilder;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 
 /**
  * A class for fetching DOIs from CrossRef
@@ -77,14 +77,14 @@ public class CrossRef implements IdParserFetcher<DOI>, EntryBasedParserFetcher, 
     @Override
     public Parser getParser() {
         return inputStream -> {
-            JSONObject response = JsonReader.toJsonObject(inputStream).getJSONObject("message");
+            JsonObject response = JsonReader.toJsonObject(inputStream).get("message").getAsJsonObject();
 
             List<BibEntry> entries = new ArrayList<>();
             if (response.has("items")) {
                 // Response contains a list
-                JSONArray items = response.getJSONArray("items");
-                for (int i = 0; i < items.length(); i++) {
-                    JSONObject item = items.getJSONObject(i);
+                JsonArray items = response.getAsJsonArray("items");
+                for (int i = 0; i < items.size(); i++) {
+                    JsonObject item = items.get(i).getAsJsonObject();
                     BibEntry entry = jsonItemToBibEntry(item);
                     entries.add(entry);
                 }
@@ -106,48 +106,51 @@ public class CrossRef implements IdParserFetcher<DOI>, EntryBasedParserFetcher, 
         }
     }
 
-    private BibEntry jsonItemToBibEntry(JSONObject item) throws ParseException {
+    private BibEntry jsonItemToBibEntry(JsonObject item) throws ParseException {
         try {
             BibEntry entry = new BibEntry();
-            entry.setType(convertType(item.getString("type")));
+            entry.setType(convertType(item.get("type").getAsString()));
             entry.setField(FieldName.TITLE,
-                    Optional.ofNullable(item.optJSONArray("title"))
-                            .map(array -> array.optString(0)).orElse(""));
+                    Optional.ofNullable(item.getAsJsonArray("title"))
+                            .map(array -> array.get(0).getAsString())
+                            .orElse(""));
             entry.setField(FieldName.SUBTITLE,
-                    Optional.ofNullable(item.optJSONArray("subtitle"))
-                            .map(array -> array.optString(0)).orElse(""));
-            entry.setField(FieldName.AUTHOR, toAuthors(item.optJSONArray("author")));
+                    Optional.ofNullable(item.getAsJsonArray("subtitle"))
+                            .map(array -> array.get(0).getAsString())
+                            .orElse(""));
+            entry.setField(FieldName.AUTHOR, toAuthors(item.getAsJsonArray("author")));
             entry.setField(FieldName.YEAR,
-                    Optional.ofNullable(item.optJSONObject("published-print"))
-                            .map(array -> array.optJSONArray("date-parts"))
-                            .map(array -> array.optJSONArray(0))
-                            .map(array -> array.optInt(0))
-                            .map(year -> Integer.toString(year)).orElse("")
+                    Optional.ofNullable(item.getAsJsonObject("published-print"))
+                            .map(array -> array.getAsJsonArray("date-parts"))
+                            .map(array -> array.get(0).getAsJsonArray())
+                            .map(array -> array.get(0).getAsInt())
+                            .map(year -> Integer.toString(year))
+                            .orElse("")
             );
-            entry.setField(FieldName.DOI, item.getString("DOI"));
-            entry.setField(FieldName.PAGES, item.optString("page"));
-            entry.setField(FieldName.VOLUME, item.optString("volume"));
-            entry.setField(FieldName.ISSN, Optional.ofNullable(item.optJSONArray("ISSN")).map(array -> array.getString(0)).orElse(""));
+            entry.setField(FieldName.DOI, item.get("DOI").getAsString());
+            entry.setField(FieldName.PAGES, Optional.ofNullable(item.get("page")).map(page -> page.getAsString()).orElse(""));
+            entry.setField(FieldName.VOLUME, Optional.ofNullable(item.get("volume")).map(volume -> volume.getAsString()).orElse(""));
+            entry.setField(FieldName.ISSN, Optional.ofNullable(item.getAsJsonArray("ISSN")).map(array -> array.get(0).getAsString()).orElse(""));
             return entry;
-        } catch (JSONException exception) {
+        } catch (Exception exception) {
             throw new ParseException("CrossRef API JSON format has changed", exception);
         }
     }
 
-    private String toAuthors(JSONArray authors) {
+    private String toAuthors(JsonArray authors) {
         if (authors == null) {
             return "";
         }
 
         // input: list of {"given":"A.","family":"Riel","affiliation":[]}
         AuthorList authorsParsed = new AuthorList();
-        for (int i = 0; i < authors.length(); i++) {
-            JSONObject author = authors.getJSONObject(i);
+        for (int i = 0; i < authors.size(); i++) {
+            JsonObject author = authors.get(i).getAsJsonObject();
             authorsParsed.addAuthor(
-                    author.optString("given", ""),
+                    author.get("given").getAsString(),
                     "",
                     "",
-                    author.optString("family", ""),
+                    author.get("family").getAsString(),
                     "");
         }
         return authorsParsed.getAsFirstLastNamesWithAnd();
