@@ -73,6 +73,7 @@ class SourceTabTest {
             when(stateManager.searchQueryProperty()).thenReturn(mock(StringProperty.class));
             activeDatabase = OptionalObjectProperty.empty();
             when(stateManager.activeDatabaseProperty()).thenReturn(activeDatabase);
+            when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
             keyBindingRepository = new KeyBindingRepository(List.of(), List.of());
             keyBindingRepository.put(KeyBinding.SAVE_LIBRARY, "Ctrl+S");
             ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
