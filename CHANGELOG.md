@@ -18,7 +18,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added a "Commit and push" button which allows to commit and then push in one go for Git operations. [#16339](https://github.com/JabRef/jabref/issues/16339)
 - We added a progress spinner and status indicator to the "Enter Identifier" tab in the New Entry dialog. [#16756](https://github.com/JabRef/jabref/issues/16756)
 - We added the option to close and reopen the PDF preview in the unlinked files dialog. [#16159](https://github.com/JabRef/jabref/issues/16159)
-- We added the ability for LibreOffice BST citations to use style-defined labels. [forum#3764]([https://github.com/JabRef/jabref/issues/16357](https://discourse.jabref.org/t/feature-request-custom-citation-styles-from-bst/3764))
 - We added support for bibliography-defined ordering of numeric CSL styles in the LibreOffice integration. [#16692](https://github.com/JabRef/jabref/pull/16692)
 - We added a new "Primer" theme, based on [AtlantaFX](https://mkpaz.github.io/atlantafx/)'s Primer theme. [#15625](https://github.com/JabRef/jabref/issues/15625)
 - We added a semantic diff preview for Git commits of the current library. [#16341](https://github.com/JabRef/jabref/issues/16341)
@@ -114,6 +113,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - Resolving of Math Subject Classification (MSC) needs to be activated in the references now. [#15883](https://github.com/JabRef/jabref/pull/15883)
 - We improved JabRef's startup performance by loading MSC codes only when activated. [#15883](https://github.com/JabRef/jabref/pull/15883)
 - Embedded postgres is no longer started with JabRef unless "Experimental search (Postgres)" is enabled in General preferences. [#12844](https://github.com/JabRef/jabref/issues/12844)
+- We changed the full text document search to run as a cancelable background task instead of blocking JabRef with a modal dialog. [#16831](https://github.com/JabRef/jabref/pull/16831)
 - We changed [remote SQL database](https://docs.jabref.org/collaborative-work/sqldatabase) synchronization to PostgreSQL-only with live updates; existing database tables are migrated. [#11232](https://github.com/JabRef/jabref/issues/11232)
 
 ### Fixed
@@ -122,6 +122,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We moved the Git settings into their own preferences tab. [#12630](https://github.com/JabRef/jabref/issues/12630)
 - "Get fulltext", groups "Attach file", "Attach file from URL", "Open folder(s)" and "Open file" commands in right click menu have been moved into a "More file operations..." submenu. [#16829](https://github.com/JabRef/jabref/pull/16829)
 - We changed the logging during full-text search indexing to identify which linked files cause errors. [#15680](https://github.com/JabRef/jabref/issues/15680)
+- We fixed Citations tab layout, loading indicators, DOI synchronization, and stale fetcher errors. [#16548](https://github.com/JabRef/jabref/issues/16548)
 - We fixed an issue where pressing Escape while a dropdown is open closed the entire dialog instead of just the dropdown. [#16596](https://github.com/JabRef/jabref/issues/16596)
 - We fixed invisible filter text in the keyboard shortcuts preferences when using the light JabRef theme. [#16731](https://github.com/JabRef/jabref/issues/16731)
 - We fixed an issue where a full-text PDF link found by DOI lookup was attached in lowercase and failed. [#16762](https://github.com/JabRef/jabref/pull/16762)

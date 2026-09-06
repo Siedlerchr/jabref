@@ -39,6 +39,12 @@ jobs:
       # that replaced it.
       cancel-in-progress: true
     runs-on: ubuntu-slim
+    # Serialized with "Auto-remove ready-for-review" per PR, so a draft conversion cannot interleave
+    # with the label evaluation below (which re-reads isDraft right before writing the label).
+    # workflow_run payloads carry no PR number for fork PRs; those fall back to an unshared group.
+    concurrency:
+      group: pr-status-${{ github.event.pull_request.number || github.event.inputs.pr_number || github.event.workflow_run.pull_requests[0].number || github.run_id }}
+      cancel-in-progress: false
     permissions:
       actions: read
       contents: read
