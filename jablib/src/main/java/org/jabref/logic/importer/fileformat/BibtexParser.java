@@ -1082,11 +1082,12 @@ public class BibtexParser implements Parser {
         int brackets = 0;
         char character;
         char lastCharacter = '\0';
+        boolean potentialEntryEnd = false;
 
         while (true) {
             character = (char) read();
 
-            if (recoverAtEntryStart && (character == '@') && (column == 2) && isEntryStart()) {
+            if (recoverAtEntryStart && potentialEntryEnd && (character == '@') && (column == 2) && isEntryStart()) {
                 unread(character);
                 throw new IOException("Error in line " + line + ": Unmatched opening bracket in field content");
             }
@@ -1125,6 +1126,9 @@ public class BibtexParser implements Parser {
                 brackets++;
             } else if (isClosingBracket) {
                 brackets--;
+                potentialEntryEnd = (brackets == 0) && (column == 2);
+            } else if (!Character.isWhitespace(character)) {
+                potentialEntryEnd = false;
             }
 
             value.append(character);

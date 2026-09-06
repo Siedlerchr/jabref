@@ -579,6 +579,27 @@ class BibtexParserTest {
     }
 
     @Test
+    void parseRetainsLineLeadingBibtexLikeTextInBracedField() throws IOException {
+        ParserResult result = parser.parse(Reader.of("""
+                @article{test,
+                  title = {prefix
+                @foo{bar}
+                suffix}
+                }
+                """));
+
+        BibEntry expected = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("test")
+                .withField(StandardField.TITLE, """
+                        prefix
+                        @foo{bar}
+                        suffix""");
+
+        assertFalse(result.hasWarnings());
+        assertEquals(List.of(expected), result.getDatabase().getEntries());
+    }
+
+    @Test
     void parseAddsEscapedOpenBracketToFieldValue() throws IOException {
         ParserResult result = parser
                 .parse(Reader.of("@article{test,review={escaped \\{ bracket}}"));
