@@ -560,6 +560,25 @@ class BibtexParserTest {
     }
 
     @Test
+    void parseContinuesAfterEntryWithUnmatchedOpenBracket() throws IOException {
+        ParserResult result = parser.parse(Reader.of("""
+                @article{broken,
+                  title = {accuracy of multilingual models by 3 to 15{{\\%}.
+                }
+                @article{valid,
+                  title = {Valid entry}
+                }
+                """));
+
+        BibEntry expected = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("valid")
+                .withField(StandardField.TITLE, "Valid entry");
+
+        assertTrue(result.hasWarnings());
+        assertEquals(List.of(expected), result.getDatabase().getEntries());
+    }
+
+    @Test
     void parseAddsEscapedOpenBracketToFieldValue() throws IOException {
         ParserResult result = parser
                 .parse(Reader.of("@article{test,review={escaped \\{ bracket}}"));

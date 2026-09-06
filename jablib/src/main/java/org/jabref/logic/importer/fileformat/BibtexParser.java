@@ -362,6 +362,7 @@ public class BibtexParser implements Parser {
             String errorMessage = Localization.lang("Error occurred when parsing entry") + ": '" + ex.getMessage()
                     + "'. " + "\n\n" + Localization.lang("JabRef skipped the entry.");
             parserResult.addWarning(new ParserResult.Range(startLine, startColumn, line, column), errorMessage);
+            dumpTextReadSoFarToString();
         }
     }
 
@@ -370,7 +371,7 @@ public class BibtexParser implements Parser {
         int startLine = line;
         int startColumn = column;
         try {
-            buffer = parseBracketedFieldContent();
+            buffer = parseBracketedFieldContent(false);
         } catch (IOException e) {
             // if we get an IO Exception here, then we have an unbracketed comment,
             // which means that we should just return and the comment will be picked up as arbitrary text
@@ -833,7 +834,7 @@ public class BibtexParser implements Parser {
                 // Value is a string enclosed in brackets. There can be pairs
                 // of brackets inside a field, so we need to count the
                 // brackets to know when the string is finished.
-                StringBuilder text = parseBracketedFieldContent();
+                StringBuilder text = parseBracketedFieldContent(true);
                 value.append(text.toString());
             } else if (Character.isDigit((char) character)) { // value is a number
                 String number = parseTextToken();
@@ -1073,7 +1074,7 @@ public class BibtexParser implements Parser {
 
     /// This is called if a field in the form of `field = {content}` is parsed.
     /// The global variable `character` contains `{`.
-    private StringBuilder parseBracketedFieldContent() throws IOException {
+    private StringBuilder parseBracketedFieldContent(boolean recoverAtEntryStart) throws IOException {
         StringBuilder value = new StringBuilder();
 
         consume('{');
@@ -1084,6 +1085,11 @@ public class BibtexParser implements Parser {
 
         while (true) {
             character = (char) read();
+
+            if (recoverAtEntryStart && (character == '@') && (column == 2) && isEntryStart()) {
+                unread(character);
+                throw new IOException("Error in line " + line + ": Unmatched opening bracket in field content");
+            }
 
             boolean isClosingBracket = false;
             if (character == '}') {
@@ -1125,6 +1131,13 @@ public class BibtexParser implements Parser {
 
             lastCharacter = character;
         }
+    }
+
+    private boolean isEntryStart() throws IOException {
+        String entryType = parseTextToken();
+        boolean isEntryStart = !entryType.isEmpty() && ((peek() == '{') || (peek() == '('));
+        unreadBuffer(new StringBuilder(entryType));
+        return isEntryStart;
     }
 
     private boolean isEscapeSymbol(char character) {
