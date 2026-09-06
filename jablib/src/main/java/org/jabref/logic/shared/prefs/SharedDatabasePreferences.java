@@ -10,7 +10,6 @@ import org.jabref.logic.shared.DatabaseConnectionProperties;
 import org.jabref.logic.shared.security.Password;
 import org.jabref.logic.util.strings.StringUtil;
 
-import com.github.javakeyring.BackendNotSupportedException;
 import com.github.javakeyring.Keyring;
 import com.github.javakeyring.PasswordAccessException;
 import org.slf4j.Logger;
@@ -73,19 +72,13 @@ public class SharedDatabasePreferences {
 
     /// @return the plain password from the system keyring; empty if none is stored or the keyring is unavailable
     public Optional<String> getPassword() {
-        Keyring keyring;
-        try {
-            keyring = Keyring.create();
-        } catch (BackendNotSupportedException e) {
-            LOGGER.warn("Could not open keyring for retrieving the shared database password", e);
-            return Optional.empty();
-        }
-        try {
+        try (Keyring keyring = Keyring.create()) {
             return Optional.of(keyring.getPassword(KEYRING_SERVICE, keyringAccount)).filter(StringUtil::isNotBlank);
         } catch (PasswordAccessException e) {
             return migrateLegacyPassword();
-        } finally {
-            closeKeyring(keyring);
+        } catch (Exception e) {
+            LOGGER.warn("Could not access keyring for retrieving the shared database password", e);
+            return Optional.empty();
         }
     }
 
@@ -145,14 +138,7 @@ public class SharedDatabasePreferences {
     ///
     /// @return whether the keyring operation succeeded
     public boolean setPassword(String password) {
-        Keyring keyring;
-        try {
-            keyring = Keyring.create();
-        } catch (BackendNotSupportedException e) {
-            LOGGER.warn("Could not open keyring for storing the shared database password", e);
-            return false;
-        }
-        try {
+        try (Keyring keyring = Keyring.create()) {
             if (StringUtil.isBlank(password)) {
                 try {
                     keyring.deletePassword(KEYRING_SERVICE, keyringAccount);
@@ -164,20 +150,9 @@ public class SharedDatabasePreferences {
             }
             internalPrefs.remove(SHARED_DATABASE_PASSWORD);
             return true;
-        } catch (PasswordAccessException e) {
-            LOGGER.warn("Could not store the shared database password", e);
-            return false;
-        } finally {
-            closeKeyring(keyring);
-        }
-    }
-
-    private void closeKeyring(Keyring keyring) {
-        try {
-            keyring.close();
         } catch (Exception e) {
-            // The keyring API declares a broad checked exception for close, unlike its operations.
-            LOGGER.warn("Could not close keyring", e);
+            LOGGER.warn("Could not access keyring for storing the shared database password", e);
+            return false;
         }
     }
 
