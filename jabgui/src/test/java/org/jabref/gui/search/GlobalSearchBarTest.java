@@ -20,7 +20,7 @@ import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.testutils.JavaFxTest;
+import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.logic.search.SearchPreferences;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.database.BibDatabaseContext;
@@ -28,54 +28,59 @@ import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 
+import static org.jabref.gui.testutils.JavaFxExtension.invokeAndWait;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class GlobalSearchBarTest extends JavaFxTest {
+@ExtendWith(JavaFxExtension.class)
+class GlobalSearchBarTest {
     private HBox hBox;
 
     private StateManager stateManager;
 
-    @Override
-    public void start(Stage stage) {
-        SearchPreferences searchPreferences = mock(SearchPreferences.class);
-        when(searchPreferences.getSearchFlags()).thenReturn(EnumSet.noneOf(SearchFlags.class));
-        when(searchPreferences.getObservableSearchFlags()).thenReturn(FXCollections.observableSet());
-        when(searchPreferences.keepSearchStringProperty()).thenReturn(new SimpleBooleanProperty(false));
-        when(searchPreferences.searchDisplayModeProperty()).thenReturn(new SimpleObjectProperty<>(SearchDisplayMode.FLOAT));
-        GuiPreferences preferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(preferences.getSearchPreferences()).thenReturn(searchPreferences);
+    @BeforeEach
+    void setUp() {
+        invokeAndWait(() -> {
+            SearchPreferences searchPreferences = mock(SearchPreferences.class);
+            when(searchPreferences.getSearchFlags()).thenReturn(EnumSet.noneOf(SearchFlags.class));
+            when(searchPreferences.getObservableSearchFlags()).thenReturn(FXCollections.observableSet());
+            when(searchPreferences.keepSearchStringProperty()).thenReturn(new SimpleBooleanProperty(false));
+            when(searchPreferences.searchDisplayModeProperty()).thenReturn(new SimpleObjectProperty<>(SearchDisplayMode.FLOAT));
+            GuiPreferences preferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
+            when(preferences.getSearchPreferences()).thenReturn(searchPreferences);
 
-        KeyBindingRepository keyBindingRepository = mock(KeyBindingRepository.class);
-        when(keyBindingRepository.matches(any(), any())).thenReturn(false);
-        when(preferences.getKeyBindingRepository()).thenReturn(keyBindingRepository);
+            KeyBindingRepository keyBindingRepository = mock(KeyBindingRepository.class);
+            when(keyBindingRepository.matches(any(), any())).thenReturn(false);
+            when(preferences.getKeyBindingRepository()).thenReturn(keyBindingRepository);
 
-        stateManager = new JabRefGuiStateManager();
-        // Need for active database, otherwise the searchField will be disabled
-        stateManager.setActiveDatabase(new BibDatabaseContext());
+            stateManager = new JabRefGuiStateManager();
+            // Need for active database, otherwise the searchField will be disabled
+            stateManager.setActiveDatabase(new BibDatabaseContext());
 
-        // Instantiate GlobalSearchBar class, so the change listener is registered
-        GlobalSearchBar searchBar = new GlobalSearchBar(
-                mock(LibraryTabContainer.class),
-                stateManager,
-                preferences,
-                mock(UndoManager.class),
-                mock(DialogService.class),
-                SearchType.NORMAL_SEARCH
-        );
+            // Instantiate GlobalSearchBar class, so the change listener is registered
+            GlobalSearchBar searchBar = new GlobalSearchBar(
+                    mock(LibraryTabContainer.class),
+                    stateManager,
+                    preferences,
+                    mock(UndoManager.class),
+                    mock(DialogService.class),
+                    SearchType.NORMAL_SEARCH
+            );
 
-        hBox = new HBox(searchBar);
+            hBox = new HBox(searchBar);
 
-        Scene scene = new Scene(hBox, 400, 400);
-        stage.setScene(scene);
-
-        stage.show();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(hBox, 400, 400));
+            stage.show();
+        });
     }
 
     @Test
@@ -86,15 +91,15 @@ public class GlobalSearchBarTest extends JavaFxTest {
         TextInputControl searchField = (TextInputControl) hBox.lookup("#searchField");
 
         // The focus is on searchField node, as we click on the search box
-        interact(searchField::requestFocus);
+        invokeAndWait(searchField::requestFocus);
         for (char c : searchQuery.toCharArray()) {
-            interact(() -> searchField.appendText(String.valueOf(c)));
+            invokeAndWait(() -> searchField.appendText(String.valueOf(c)));
             Thread.sleep(401);
             assertTrue(stateManager.getWholeSearchHistory().isEmpty());
         }
 
         // Set the focus to another node to trigger the listener and finally record the query.
-        interact(hBox::requestFocus);
+        invokeAndWait(hBox::requestFocus);
         List<String> lastSearchHistory = stateManager.getWholeSearchHistory().stream().toList();
 
         assertEquals(List.of("Smith"), lastSearchHistory);
@@ -106,26 +111,26 @@ public class GlobalSearchBarTest extends JavaFxTest {
         String searchQuery = "";
         TextInputControl searchField = (TextInputControl) hBox.lookup("#searchField");
 
-        interact(searchField::requestFocus);
-        interact(() -> searchField.appendText(searchQuery));
+        invokeAndWait(searchField::requestFocus);
+        invokeAndWait(() -> searchField.appendText(searchQuery));
 
-        interact(hBox::requestFocus);
+        invokeAndWait(hBox::requestFocus);
         List<String> lastSearchHistory = stateManager.getWholeSearchHistory().stream().toList();
 
         assertEquals(List.of(), lastSearchHistory);
     }
 
     @Test
-    void blankQueryClearsActiveSearch(FxRobot robot) throws InterruptedException {
-        TextInputControl searchField = robot.lookup("#searchField").queryTextInputControl();
+    void blankQueryClearsActiveSearch() throws InterruptedException {
+        TextInputControl searchField = (TextInputControl) hBox.lookup("#searchField");
 
-        FxRobotInterface searchFieldRobot = robot.clickOn(searchField);
-        searchFieldRobot.write("abc");
+        invokeAndWait(searchField::requestFocus);
+        invokeAndWait(() -> searchField.appendText("abc"));
         awaitActiveSearchQuery(Optional.of(new SearchQuery("abc")));
         assertEquals(Optional.of(new SearchQuery("abc")), stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get());
 
-        searchFieldRobot.eraseText(3);
-        searchFieldRobot.write("   ");
+        invokeAndWait(searchField::clear);
+        invokeAndWait(() -> searchField.appendText("   "));
         awaitActiveSearchQuery(Optional.empty());
 
         assertEquals(Optional.empty(), stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get());
