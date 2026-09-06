@@ -79,9 +79,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We removed the keystore fields, the server timezone, and the database type selection from the "Connect to shared database" dialog. [#16800](https://github.com/JabRef/jabref/pull/16800)
 - A remembered shared database password is now kept in the operating system's credential store instead of JabRef's preferences. [#16800](https://github.com/JabRef/jabref/pull/16800)
 - We added a Git section to the library properties for automatic commit, pull and push. [#12630](https://github.com/JabRef/jabref/issues/12630)
-
-### Changed
-
 - We moved zotero-related settings from openoffice panel to openoffice/libreoffice preference tab. [#16352](https://github.com/JabRef/jabref/issues/16352)
 - We changed the default size of the "New Entry" dialog to improve visibility. [#11589](https://github.com/JabRef/jabref/issues/11589)
 - We changed the default macOS shortcuts for "Search document identifier online" and "Focus group list" to not insert special characters. [#16528](https://github.com/JabRef/jabref/issues/16528)
@@ -125,9 +122,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We moved the Git settings into their own preferences tab. [#12630](https://github.com/JabRef/jabref/issues/12630)
 - "Get fulltext", groups "Attach file", "Attach file from URL", "Open folder(s)" and "Open file" commands in right click menu have been moved into a "More file operations..." submenu. [#16829](https://github.com/JabRef/jabref/pull/16829)
 - We changed the logging during full-text search indexing to identify which linked files cause errors. [#15680](https://github.com/JabRef/jabref/issues/15680)
-
-### Fixed
-
 - We fixed an issue where pressing Escape while a dropdown is open closed the entire dialog instead of just the dropdown. [#16596](https://github.com/JabRef/jabref/issues/16596)
 - We fixed invisible filter text in the keyboard shortcuts preferences when using the light JabRef theme. [#16731](https://github.com/JabRef/jabref/issues/16731)
 - We fixed an issue where a full-text PDF link found by DOI lookup was attached in lowercase and failed. [#16762](https://github.com/JabRef/jabref/pull/16762)
