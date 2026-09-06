@@ -36,6 +36,8 @@ import org.jabref.model.util.DummyFileUpdateMonitor;
 import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import jfx.incubator.scene.control.richtext.CodeArea;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Answers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -104,11 +106,11 @@ class SourceTabTest extends JavaFxTest {
 
     @ParameterizedTest
     @EnumSource(BibDatabaseMode.class)
-    void sourceLabelUpdatesWhenStartupDatabaseBecomesAvailable(BibDatabaseMode mode, FxRobot robot) {
+    void sourceLabelUpdatesWhenStartupDatabaseBecomesAvailable(BibDatabaseMode mode) {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setMode(mode);
 
-        robot.interact(() -> {
+        interact(() -> {
             activeDatabase.set(Optional.of(database));
 
             assertEquals(Localization.lang("%0 source", mode.getFormattedName()), sourceTab.getText());
@@ -117,8 +119,8 @@ class SourceTabTest extends JavaFxTest {
     }
 
     @Test
-    void sourceLabelResetsWhenDatabaseCloses(FxRobot robot) {
-        robot.interact(() -> {
+    void sourceLabelResetsWhenDatabaseCloses() {
+        interact(() -> {
             activeDatabase.set(Optional.of(new BibDatabaseContext()));
             activeDatabase.set(Optional.empty());
 
