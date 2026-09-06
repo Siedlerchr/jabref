@@ -1146,6 +1146,7 @@ public class BibtexParser implements Parser {
     private boolean isEntryStart() throws IOException {
         StringBuilder entryStart = new StringBuilder(parseTextToken());
         int character;
+        // @formatter:off
         do {
             character = read();
             if (isEOFCharacter(character)) {
@@ -1154,7 +1155,7 @@ public class BibtexParser implements Parser {
             }
             entryStart.append((char) character);
         } while (Character.isWhitespace((char) character));
-
+        // @formatter:on
         boolean isEntryStart = (entryStart.length() > 1) && ((character == '{') || (character == '('));
         unreadBuffer(entryStart);
         return isEntryStart;
