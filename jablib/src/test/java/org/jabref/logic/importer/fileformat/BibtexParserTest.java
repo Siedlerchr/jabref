@@ -579,6 +579,26 @@ class BibtexParserTest {
     }
 
     @Test
+    void parseContinuesAfterUnmatchedOpenBracketWithIndentedEntryAndSeparateDelimiter() throws IOException {
+        ParserResult result = parser.parse(Reader.of("""
+                @article{broken,
+                  title = {accuracy of multilingual models by 3 to 15{{\\%}.
+                }
+                    @article
+                    {valid,
+                      title = {Valid entry}
+                    }
+                """));
+
+        BibEntry expected = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("valid")
+                .withField(StandardField.TITLE, "Valid entry");
+
+        assertTrue(result.hasWarnings());
+        assertEquals(List.of(expected), result.getDatabase().getEntries());
+    }
+
+    @Test
     void parseRetainsLineLeadingBibtexLikeTextInBracedField() throws IOException {
         ParserResult result = parser.parse(Reader.of("""
                 @article{test,

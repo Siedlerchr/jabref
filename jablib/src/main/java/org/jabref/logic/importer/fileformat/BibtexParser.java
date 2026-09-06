@@ -1083,11 +1083,12 @@ public class BibtexParser implements Parser {
         char character;
         char lastCharacter = '\0';
         boolean potentialEntryEnd = false;
+        boolean lineContainsOnlyWhitespace = false;
 
         while (true) {
             character = (char) read();
 
-            if (recoverAtEntryStart && potentialEntryEnd && (character == '@') && (column == 2) && isEntryStart()) {
+            if (recoverAtEntryStart && potentialEntryEnd && lineContainsOnlyWhitespace && (character == '@') && isEntryStart()) {
                 unread(character);
                 throw new IOException("Error in line " + line + ": Unmatched opening bracket in field content");
             }
@@ -1126,21 +1127,36 @@ public class BibtexParser implements Parser {
                 brackets++;
             } else if (isClosingBracket) {
                 brackets--;
-                potentialEntryEnd = (brackets == 0) && (column == 2);
+                potentialEntryEnd = (brackets == 0) && lineContainsOnlyWhitespace;
             } else if (!Character.isWhitespace(character)) {
                 potentialEntryEnd = false;
             }
 
             value.append(character);
 
+            if ((character == '\r') || (character == '\n')) {
+                lineContainsOnlyWhitespace = true;
+            } else if (!Character.isWhitespace(character)) {
+                lineContainsOnlyWhitespace = false;
+            }
             lastCharacter = character;
         }
     }
 
     private boolean isEntryStart() throws IOException {
-        String entryType = parseTextToken();
-        boolean isEntryStart = !entryType.isEmpty() && ((peek() == '{') || (peek() == '('));
-        unreadBuffer(new StringBuilder(entryType));
+        StringBuilder entryStart = new StringBuilder(parseTextToken());
+        int character;
+        do {
+            character = read();
+            if (isEOFCharacter(character)) {
+                unreadBuffer(entryStart);
+                return false;
+            }
+            entryStart.append((char) character);
+        } while (Character.isWhitespace((char) character));
+
+        boolean isEntryStart = (entryStart.length() > 1) && ((character == '{') || (character == '('));
+        unreadBuffer(entryStart);
         return isEntryStart;
     }
 
