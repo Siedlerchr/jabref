@@ -1146,7 +1146,8 @@ public class BibtexParser implements Parser {
     private boolean isEntryStart() throws IOException {
         StringBuilder entryStart = new StringBuilder(parseTextToken());
         int character;
-        do {
+        do
+        {
             character = read();
             if (isEOFCharacter(character)) {
                 unreadBuffer(entryStart);
